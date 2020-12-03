@@ -156,20 +156,26 @@ let rec parser str =
       match s with 
       | e::s' -> if Str.string_match(Str.regexp "[0-9]+$") e 0
                  then Num(int_of_string e)
-                 else Unit
+                 else if e = "U"
+                 then Unit
+                 else if e = "pair"
+                 then 
     in
       looper nns;;
 
 
-let parser_test exp = 
-
+let parser_test str = 
+    let num_test = (eval (parser str) []) = Num(10) in
+    let unit_test = (eval (parser str) []) = Unit in
+    let pair_test = (eval (parser str) []) = Pair(Num(10),Num(20)) in
+    if pair_test
+    then printf "Inerpretation Successfull \n"
+    else printf "Inerpretation Unsuccessfull \n"
 
 let () = 
   let _ = eval_tests () in 
   let input_file = (open_in (Sys.argv.(1))) in
   let str = really_input_string input_file (in_channel_length input_file) in 
-  let ast = parser str in 
-  let exp = eval ast [] in
-  if exp = Num(10) 
-  then printf "Inerpretation Successfull \n"
-  else printf "Inerpretation Unsuccessfull \n"
+  parser_test str;;
+  
+  
