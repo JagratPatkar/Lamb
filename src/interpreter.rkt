@@ -18,6 +18,16 @@
 
 
 
+(define (racketlist->mupllist rl)
+  (if (null? rl)
+      (aunit)
+      (apair (car rl) (racketlist->mupllist (cdr rl)))))
+
+(define (mupllist->racketlist ml)
+  (if (aunit? ml)
+      null
+      (cons (apair-e1 ml) (mupllist->racketlist (apair-e2 ml)))))
+
 
 (define (envlookup env str)
   (cond [(null? env) (error "unbound variable during evaluation" str)]
@@ -76,4 +86,17 @@
 
 
 (define (eval-exp e)
-  (eval-under-env e null)) 
+  (eval-under-env e null))
+
+
+(define (ifaunit e1 e2 e3)
+  (ifgreater (int 1) (isaunit e1) e3 e2))
+
+(define (ifeq e1 e2 e3 e4)
+  (mlet "_x" e1
+        (mlet "_y" e2
+              (ifgreater (var "_x") (var "_y")
+                         e4
+                         (ifgreater (var "_y") (var "_x")
+                                    e4
+                                    e3)))))
