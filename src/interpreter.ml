@@ -145,13 +145,31 @@ let eval_tests () =
   printf "Recursive Call Test ---> %b \n" t22 ;*)
 
   if (t1 && t2 && t4 && t5 && t7 && t8  && t10 && t11 && t12 && t13 && t14 && t16 && t18 && t19 && t20 && t21 && t22)
-  then printf "Heath Status ===== OK"
-  else printf "Helth Status ===== NOT OK";;
+  then printf "Interpreter Heath Status ===== OK \n"
+  else printf "Interpreter Helth Status ===== NOT OK \n";;
 
+
+let rec parser str = 
+    let ns = Str.global_substitute (Str.regexp("\\([(-)]+\\)")) (fun x -> " ") str in  
+    let nns = Str.split (Str.regexp "[ \n\t]+") ns in
+    let rec looper s =
+      match s with 
+      | e::s' -> if Str.string_match(Str.regexp "[0-9]+$") e 0
+                 then Num(int_of_string e)
+                 else Unit
+    in
+      looper nns;;
+
+
+let parser_test exp = 
 
 
 let () = 
-  let k = eval_tests () in 
+  let _ = eval_tests () in 
   let input_file = (open_in (Sys.argv.(1))) in
   let str = really_input_string input_file (in_channel_length input_file) in 
-  
+  let ast = parser str in 
+  let exp = eval ast [] in
+  if exp = Num(10) 
+  then printf "Inerpretation Successfull \n"
+  else printf "Inerpretation Unsuccessfull \n"
