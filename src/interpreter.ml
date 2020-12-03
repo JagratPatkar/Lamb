@@ -187,7 +187,7 @@ let rec parser str =
                       with e-> raise SyntaxError
                  else if e = "list" 
                  then  proccessList s' 
-                 else if e = "add"
+                 else if e = "+"
                  then try 
                         let (Some v1,e1) = looper s' in
                         let (Some v2,e2) = looper e1 in
@@ -221,6 +221,42 @@ let rec parser str =
                           let (None, e5) = looper e4 in
                           (Some(Ifgreater(v1,v2,v3,v4)),e3)
                         with e-> raise SyntaxError
+                else if e = "let"
+                then try 
+                        let (Some vl,e1) = looper s' in
+                        let (Some exp2,e2) = looper e1 in 
+                        let (Some exp3,e3) = looper e2 in 
+                        let (None, e4) = looper e3 in
+                        let Var v = vl in
+                        (Some(Let(v,exp2,exp3)),e4)
+                      with e-> raise SyntaxError
+                else if e = "define"
+                then try 
+                        let (Some vl,e1) = looper s' in
+                        let (Some vl2,e2) = looper e1 in 
+                        let (Some exp3,e3) = looper e2 in 
+                        let (None, e4) = looper e3 in
+                        let Var v = vl in
+                        let Var v1 = vl2 in
+                        (Some(Fun(S(v),v1,exp3)),e4)
+                      with e-> raise SyntaxError
+                else if e = "lambda"
+                then try 
+                        let (Some vl,e1) = looper s' in
+                        let (Some exp3,e2) = looper e1 in 
+                        let (None, e3) = looper e2 in
+                        let Var v = vl in
+                        (Some(Fun(F(false),v,exp3)),e3)
+                      with e-> raise SyntaxError
+                else if e = "call"
+                then try 
+                        let (Some vl,e1) = looper s' in
+                        let (Some vl2,e2) = looper e1 in 
+                        let (None, e3) = looper e2 in
+                        (Some(Call(vl,vl2)),e3)
+                      with e-> raise SyntaxError
+                else if Str.string_match(Str.regexp "[A-Za-z_]+$") e 0
+                then (Some(Var(e)),s')
                 else if e = ")"
                 then (None,s')
                 else raise SyntaxError
@@ -240,8 +276,13 @@ let parser_test str =
     (* let add_test = parser str = Add(Add(Num(20),Num(30)),Add(Num(40),Num(50))) in *)
     (* let car_test = (eval (parser str) []) = Num(10) in *)
     (* let cdr_test = (eval (parser str) []) = Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))) in *)
-    let is_unit = (eval (parser str) []) = Num(0) in 
-    if is_unit
+    (* let is_unit = (eval (parser str) []) = Num(0) in  *)
+    (* let if_greater_test = (eval (parser str) []) = Pair(Num(10),Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit))))) in *)
+    (* let let_test = (eval (parser str) []) = Num(40) in *)
+    (* let func_test = (eval (parser str) []) = Closure([],Fun(S("fuc"),"x",Add(Num(10),Var("x")))) in *)
+    let func_test2 = (eval (parser str) []) = Closure([],Fun(F(false),"x",Add(Num(10),Var("x"))))
+    (* let call_test = (eval (parser str) []) = Pair(Num(2),Pair(Num(3),Pair(Num(4),Pair(Num(5),Pair(Num(6),Unit))))) in *)
+    if func_test2
     then printf "Interpretation Successfull \n"
     else printf "Interpretation Unsuccessfull \n"
 
