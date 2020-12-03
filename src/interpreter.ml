@@ -24,7 +24,7 @@ and env = (string * expr) list
 
 
 exception IlleagalValue
-
+exception SyntaxError
 let rec eval expr env = 
 
   let rec lookup str env = 
@@ -150,27 +150,62 @@ let eval_tests () =
 
 
 let rec parser str = 
-    let ns = Str.global_substitute (Str.regexp("\\([(-)]+\\)")) (fun x -> " ") str in  
-    let nns = Str.split (Str.regexp "[ \n\t]+") ns in
+    (* let ns = Str.global_substitute (Str.regexp("\\([(-)]+\\)")) (fun x -> if x = "(" then " ( " else " ) ") str in   *)
+    let nns = Str.split (Str.regexp "[ \n\t]+") (printf "here -> %s\n" str; str) in
+    
     let rec looper s =
+      let proccessList s =
+        let rec processor l ml = 
+          let ret = looper l in
+          match ret with
+          | (Some x,e) -> processor e (ml @ [x])
+          | (None,en) -> (ml,en)
+        in 
+        let rec makeList l = 
+            match l with 
+            | [] -> Unit 
+            | e1::l' -> Pair(e1,(makeList l'))
+        in let (pl,e) = processor s [] in 
+        let l = makeList pl in 
+        (Some(l),e)
+      in 
       match s with 
-      | e::s' -> if Str.string_match(Str.regexp "[0-9]+$") e 0
-                 then Num(int_of_string e)
+      | e::s' -> 
+                 if e = "("
+                 then looper s'
+                 else if Str.string_match(Str.regexp "[0-9]+$") e 0
+                 then (Some(Num(int_of_string e)),s')
                  else if e = "U"
-                 then Unit
+                 then (Some(Unit),s')
                  else if e = "pair"
                  then 
+                      try 
+                        let (Some v1,e1) = looper s' in
+                        let (Some v2,e2) = looper e1 in
+                        let (None, e3) = looper e2 in
+                        (Some(Pair(v1,v2)),e3)
+                      with e-> raise SyntaxError
+                 else if e = "list" 
+                 then  proccessList s' 
+                 else if e = ")"
+                 then (None,s')
+                 else raise SyntaxError
+      | _ -> raise SyntaxError
     in
-      looper nns;;
+      try 
+      let (Some e,env) =  looper nns in e
+      with e -> raise SyntaxError;;
 
+    
 
 let parser_test str = 
-    let num_test = (eval (parser str) []) = Num(10) in
-    let unit_test = (eval (parser str) []) = Unit in
-    let pair_test = (eval (parser str) []) = Pair(Num(10),Num(20)) in
-    if pair_test
-    then printf "Inerpretation Successfull \n"
-    else printf "Inerpretation Unsuccessfull \n"
+    (*let num_test = (eval (parser str) []) = Num(10) in*) (* Passed *)
+    (* let unit_test = (eval (parser str) []) = Unit in *) (* Passed *)
+    (*let pair_test = (eval (parser str) []) = Pair(Num(10),Pair(Num(20),Unit)) in *)
+    let list_test1 = (eval (parser str) []) = Pair(Num(10),Pair(Num(20),Unit)) in
+    if list_test1
+    then printf "Interpretation Successfull \n"
+    else printf "Interpretation Unsuccessfull \n"
 
 let () = 
   let _ = eval_tests () in 
