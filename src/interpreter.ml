@@ -187,9 +187,40 @@ let rec parser str =
                       with e-> raise SyntaxError
                  else if e = "list" 
                  then  proccessList s' 
-                 else if e = ")"
-                 then (None,s')
-                 else raise SyntaxError
+                 else if e = "add"
+                 then try 
+                        let (Some v1,e1) = looper s' in
+                        let (Some v2,e2) = looper e1 in
+                        let (None, e3) = looper e2 in
+                        (Some(Add(v1,v2)),e3)
+                      with e-> raise SyntaxError
+                 else if e = "car"
+                 then try 
+                        let (Some v1,e1) = looper s' in
+                        let (None, e2) = looper e1 in
+                        (Some(Car(v1)),e2)
+                      with e-> raise SyntaxError
+                else if e = "cdr"
+                then try 
+                        let (Some v1,e1) = looper s' in
+                        let (None, e2) = looper e1 in
+                        (Some(Cdr(v1)),e2)
+                      with e-> raise SyntaxError
+                else if e = "unit?"
+                then try 
+                        let (Some v1,e1) = looper s' in
+                        let (None, e2) = looper e1 in
+                        (Some(Isunit(v1)),e2)
+                      with e-> raise SyntaxError
+                else if e = "cmp"
+                then try 
+                        let (Some v1,e1) = looper s' in
+                        let (None, e2) = looper e1 in
+                        (Some(Isunit(v1)),e2)
+                        with e-> raise SyntaxError
+                else if e = ")"
+                then (None,s')
+                else raise SyntaxError
       | _ -> raise SyntaxError
     in
       try 
@@ -202,8 +233,12 @@ let parser_test str =
     (*let num_test = (eval (parser str) []) = Num(10) in*) (* Passed *)
     (* let unit_test = (eval (parser str) []) = Unit in *) (* Passed *)
     (*let pair_test = (eval (parser str) []) = Pair(Num(10),Pair(Num(20),Unit)) in *)
-    let list_test1 = (eval (parser str) []) = Pair(Num(10),Pair(Num(20),Unit)) in
-    if list_test1
+    (* let list_test1 = (eval (parser str) []) = Pair(Num(10),Pair(Num(20),Unit)) in *)
+    (* let add_test = parser str = Add(Add(Num(20),Num(30)),Add(Num(40),Num(50))) in *)
+    (* let car_test = (eval (parser str) []) = Num(10) in *)
+    (* let cdr_test = (eval (parser str) []) = Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))) in *)
+    let is_unit = (eval (parser str) []) = Num(0) in 
+    if is_unit
     then printf "Interpretation Successfull \n"
     else printf "Interpretation Unsuccessfull \n"
 
@@ -212,5 +247,4 @@ let () =
   let input_file = (open_in (Sys.argv.(1))) in
   let str = really_input_string input_file (in_channel_length input_file) in 
   parser_test str;;
-  
   
