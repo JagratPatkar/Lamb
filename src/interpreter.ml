@@ -214,9 +214,12 @@ let rec parser str =
                       with e-> raise SyntaxError
                 else if e = "cmp"
                 then try 
-                        let (Some v1,e1) = looper s' in
-                        let (None, e2) = looper e1 in
-                        (Some(Isunit(v1)),e2)
+                          let (Some v1,e1) = looper s' in
+                          let (Some v2,e2) = looper e1 in
+                          let (Some v3,e3) = looper e2 in
+                          let (Some v4,e4) = looper e3 in
+                          let (None, e5) = looper e4 in
+                          (Some(Ifgreater(v1,v2,v3,v4)),e3)
                         with e-> raise SyntaxError
                 else if e = ")"
                 then (None,s')
