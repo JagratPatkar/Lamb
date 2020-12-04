@@ -25,7 +25,7 @@ and env = (string * expr) list
 
 exception IlleagalValue
 exception SyntaxError
-let rec eval expr env = 
+let eval expr env = 
 
   let rec lookup str env = 
     match env with
@@ -38,49 +38,53 @@ let rec eval expr env =
     match expr with
     | Fun(fn,fp,fb) -> (fn,fp,fb)
     | _ -> raise IlleagalValue in
+  
 
-  match expr with 
-  | Num e -> Num e
-  | Var s -> lookup s env
-  | Add(exp1,exp2) -> (try 
-                        let Num e1 = eval exp1 env in
-                        let Num e2 = eval exp2 env in 
-                        Num(e1 + e2)
-                      with e -> raise IlleagalValue)
-  |Ifgreater(exp1,exp2,exp3,exp4) ->  (try 
-                                          let Num v1 = eval exp1 env in
-                                          let Num v2 = eval exp2 env in 
-                                          if v1 > v2
-                                          then (eval exp3 env)
-                                          else (eval exp4 env)
-                                        with e -> raise IlleagalValue)
-  | Fun (n,v,e) -> Closure(env,Fun(n,v,e))
-  | Let(b,exp,body) -> let e1 = eval exp env in eval body ((b,e1)::env) 
-  | Pair(exp1,exp2) -> let e1 = eval exp1 env in 
-                        let e2 = eval exp2 env in 
-                        Pair(e1,e2)
-  | Car e -> (try 
-              let Pair(e1,_) = eval e env in
-              e1
-              with e -> raise IlleagalValue) 
-  | Cdr e -> (try 
-              let Pair(_,e2) = eval e env in
-              e2
-              with e -> raise IlleagalValue) 
-  | Unit -> Unit
-  | Isunit e -> if (eval e env) = Unit 
-              then Num(1)
-              else Num(0)
-  | Closure(e,ev) -> Closure(e,ev)
-  | Call(clo,arg) -> try 
-                      let Closure(e,funb) = (eval clo env) in 
-                      let act = (eval arg env) in 
-                      let (fn,fp,fb) = getFunParts funb in 
-                      if fn = F(false) 
-                      then (eval fb ((fp,act)::e))
-                      else
-                      let S form = fn in (eval fb ((form,Closure(e,funb))::((fp,act)::e)))
-                      with e -> raise IlleagalValue
+  let rec pr expr env  = 
+      match expr with 
+      | Num e -> Num e
+      | Var s -> lookup s env
+      | Add(exp1,exp2) -> (try 
+                            let Num e1 = pr exp1 env in
+                            let Num e2 = pr exp2 env in 
+                            Num(e1 + e2)
+                          with e -> raise IlleagalValue)
+      |Ifgreater(exp1,exp2,exp3,exp4) ->  (try 
+                                              let Num v1 = pr exp1 env in
+                                              let Num v2 = pr exp2 env in 
+                                              if v1 > v2
+                                              then (pr exp3 env)
+                                              else (pr exp4 env)
+                                            with e -> raise IlleagalValue)
+      | Fun (n,v,e) -> Closure(env,Fun(n,v,e))
+      | Let(b,exp,body) -> let e1 = pr exp env in pr body ((b,e1)::env) 
+      | Pair(exp1,exp2) -> let e1 = pr exp1 env in 
+                            let e2 = pr exp2 env in 
+                            Pair(e1,e2)
+      | Car e -> (try 
+                  let Pair(e1,_) = pr e env in
+                  e1
+                  with e -> raise IlleagalValue) 
+      | Cdr e -> (try 
+                  let Pair(_,e2) = pr e env in
+                  e2
+                  with e -> raise IlleagalValue) 
+      | Unit -> Unit
+      | Isunit e -> if (pr e env) = Unit 
+                  then Num(1)
+                  else Num(0)
+      | Closure(e,ev) -> Closure(e,ev)
+      | Call(clo,arg) -> try 
+                          let Closure(e,funb) = (pr clo env) in 
+                          let act = (pr arg env) in 
+                          let (fn,fp,fb) = getFunParts funb in 
+                          if fn = F(false) 
+                          then (pr fb ((fp,act)::e))
+                          else
+                          let S form = fn in (pr fb ((form,Closure(e,funb))::((fp,act)::e)))
+                          with e -> raise IlleagalValue
+      in 
+      (pr expr env);;
   
 
 
@@ -219,7 +223,7 @@ let rec parser str =
                           let (Some v3,e3) = looper e2 in
                           let (Some v4,e4) = looper e3 in
                           let (None, e5) = looper e4 in
-                          (Some(Ifgreater(v1,v2,v3,v4)),e3)
+                          (Some(Ifgreater(v1,v2,v3,v4)),e5)
                         with e-> (printf "in cmp \n";raise SyntaxError)
                 else if e = "let"
                 then try 
@@ -239,7 +243,7 @@ let rec parser str =
                         let Var v = vl in
                         let Var v1 = vl2 in
                         (printf "in define %s \n" v ; (Some(Fun(S(v),v1,exp3)),e4))
-                      with e-> (printf "in define %s \n";raise SyntaxError)
+                      with e-> (printf "in define\n";raise SyntaxError)
                 else if e = "lambda"
                 then try 
                         let (Some vl,e1) = looper s' in
@@ -263,7 +267,13 @@ let rec parser str =
       | _ -> raise SyntaxError
     in
       try 
-      let (Some e,env) =  looper nns in e
+        let rec m n = 
+            let (Some e,en) =  looper n 
+            in 
+            if en = []
+            then [e]
+            else (m en) @ [e] in
+        (m nns)
       with e -> raise SyntaxError;;
 
     
@@ -280,9 +290,11 @@ let parser_test str =
     (* let if_greater_test = (eval (parser str) []) = Pair(Num(10),Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit))))) in *)
     (* let let_test = (eval (parser str) []) = Num(40) in *)
     (* let func_test = (eval (parser str) []) = Closure([],Fun(S("fuc"),"x",Add(Num(10),Var("x")))) in *)
-    let func_test2 = (eval (parser str) []) = Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))) in
-    (* let call_test = (eval (parser str) []) = Pair(Num(2),Pair(Num(3),Pair(Num(4),Pair(Num(5),Pair(Num(6),Unit))))) in *)
-    if func_test2
+    (* let map_test = (eval (parser str) []) = Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))) in *)
+    let mult_map_test_data = parser str in
+    let mult_map_test1 = (eval (hd mult_map_test_data) []) =  Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))) in
+    let mult_map_test2 = (eval (hd (tl mult_map_test_data)) []) =  Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))) in
+    if mult_map_test1 && mult_map_test2
     then printf "Interpretation Successfull \n"
     else printf "Interpretation Unsuccessfull \n"
 
