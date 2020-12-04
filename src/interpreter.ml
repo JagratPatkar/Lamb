@@ -151,7 +151,7 @@ let eval_tests () =
 
 let rec parser str = 
     (* let ns = Str.global_substitute (Str.regexp("\\([(-)]+\\)")) (fun x -> if x = "(" then " ( " else " ) ") str in   *)
-    let nns = Str.split (Str.regexp "[ \n\t]+") (printf "here -> %s\n" str; str) in
+    let nns = Str.split (Str.regexp "[ \n\t]+")  str in
     
     let rec looper s =
       let proccessList s =
@@ -184,7 +184,7 @@ let rec parser str =
                         let (Some v2,e2) = looper e1 in
                         let (None, e3) = looper e2 in
                         (Some(Pair(v1,v2)),e3)
-                      with e-> raise SyntaxError
+                      with e-> (printf "in pair \n"; raise SyntaxError)
                  else if e = "list" 
                  then  proccessList s' 
                  else if e = "+"
@@ -193,25 +193,25 @@ let rec parser str =
                         let (Some v2,e2) = looper e1 in
                         let (None, e3) = looper e2 in
                         (Some(Add(v1,v2)),e3)
-                      with e-> raise SyntaxError
+                      with e-> (printf "in add \n"; raise SyntaxError)
                  else if e = "car"
                  then try 
                         let (Some v1,e1) = looper s' in
                         let (None, e2) = looper e1 in
                         (Some(Car(v1)),e2)
-                      with e-> raise SyntaxError
+                      with e-> (printf "in car \n"; raise SyntaxError)
                 else if e = "cdr"
                 then try 
                         let (Some v1,e1) = looper s' in
                         let (None, e2) = looper e1 in
                         (Some(Cdr(v1)),e2)
-                      with e-> raise SyntaxError
+                      with e-> (printf "in cdr \n"; raise SyntaxError)
                 else if e = "unit?"
                 then try 
                         let (Some v1,e1) = looper s' in
                         let (None, e2) = looper e1 in
                         (Some(Isunit(v1)),e2)
-                      with e-> raise SyntaxError
+                      with e-> (printf "in unit? \n";raise SyntaxError)
                 else if e = "cmp"
                 then try 
                           let (Some v1,e1) = looper s' in
@@ -220,7 +220,7 @@ let rec parser str =
                           let (Some v4,e4) = looper e3 in
                           let (None, e5) = looper e4 in
                           (Some(Ifgreater(v1,v2,v3,v4)),e3)
-                        with e-> raise SyntaxError
+                        with e-> (printf "in cmp \n";raise SyntaxError)
                 else if e = "let"
                 then try 
                         let (Some vl,e1) = looper s' in
@@ -229,7 +229,7 @@ let rec parser str =
                         let (None, e4) = looper e3 in
                         let Var v = vl in
                         (Some(Let(v,exp2,exp3)),e4)
-                      with e-> raise SyntaxError
+                      with e-> (printf "in let \n";raise SyntaxError)
                 else if e = "define"
                 then try 
                         let (Some vl,e1) = looper s' in
@@ -238,8 +238,8 @@ let rec parser str =
                         let (None, e4) = looper e3 in
                         let Var v = vl in
                         let Var v1 = vl2 in
-                        (Some(Fun(S(v),v1,exp3)),e4)
-                      with e-> raise SyntaxError
+                        (printf "in define %s \n" v ; (Some(Fun(S(v),v1,exp3)),e4))
+                      with e-> (printf "in define %s \n";raise SyntaxError)
                 else if e = "lambda"
                 then try 
                         let (Some vl,e1) = looper s' in
@@ -247,14 +247,14 @@ let rec parser str =
                         let (None, e3) = looper e2 in
                         let Var v = vl in
                         (Some(Fun(F(false),v,exp3)),e3)
-                      with e-> raise SyntaxError
+                      with e-> (printf "in lambda \n";raise SyntaxError)
                 else if e = "call"
                 then try 
                         let (Some vl,e1) = looper s' in
                         let (Some vl2,e2) = looper e1 in 
                         let (None, e3) = looper e2 in
                         (Some(Call(vl,vl2)),e3)
-                      with e-> raise SyntaxError
+                      with e-> (printf "in call \n";raise SyntaxError)
                 else if Str.string_match(Str.regexp "[A-Za-z_]+$") e 0
                 then (Some(Var(e)),s')
                 else if e = ")"
@@ -280,7 +280,7 @@ let parser_test str =
     (* let if_greater_test = (eval (parser str) []) = Pair(Num(10),Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit))))) in *)
     (* let let_test = (eval (parser str) []) = Num(40) in *)
     (* let func_test = (eval (parser str) []) = Closure([],Fun(S("fuc"),"x",Add(Num(10),Var("x")))) in *)
-    let func_test2 = (eval (parser str) []) = Closure([],Fun(F(false),"x",Add(Num(10),Var("x"))))
+    let func_test2 = (eval (parser str) []) = Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))) in
     (* let call_test = (eval (parser str) []) = Pair(Num(2),Pair(Num(3),Pair(Num(4),Pair(Num(5),Pair(Num(6),Unit))))) in *)
     if func_test2
     then printf "Interpretation Successfull \n"
