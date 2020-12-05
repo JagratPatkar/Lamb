@@ -84,43 +84,50 @@ let eval expr env =
                           let S form = fn in (pr fb ((form,Closure(e,funb))::((fp,act)::e)))
                           with e -> raise IlleagalValue
       in 
-      (pr expr env);;
+      let rec iter l exl env=
+        if l = []
+        then exl
+        else 
+          let exp = pr (hd l) env in 
+            iter (tl l) ([exp] @ exl) []    
+      in 
+      (iter expr [] env);;
   
 
 
 
 
 let eval_tests () = 
-  let t1 = (eval (Num(10)) []) = Num(10) in
-  let t2 = (eval (Var("x")) [("x",Num(10))]) = Num(10) in 
+  let t1 = (eval ([Num(10)]) []) = [Num(10)] in
+  let t2 = (eval ([Var("x")]) [("x",Num(10))]) = [Num(10)] in 
   (*let t3 = (eval (Var("x")) [("y",Num(10))]) = Num(10);;*) (* Passed *)
-  let t4 = (eval (Add(Var("x"),Num(10))) [("x",Num(10))]) = Num(20) in 
-  let t5 = (eval (Add(Num(20),Num(10))) [("x",Num(10))]) = Num(30) in 
+  let t4 = (eval ([Add(Var("x"),Num(10))]) [("x",Num(10))]) = [Num(20)] in 
+  let t5 = (eval ([Add(Num(20),Num(10))]) [("x",Num(10))]) = [Num(30)] in 
   (*let t6 = (eval (Add(Num(20),Unit)) [("x",Num(10))]) = Num(30);;*) (* Passed *)
-  let t7 = (eval (Ifgreater(Num(10),Num(20),Var("x"),Var("y"))) [("x",Num(20)) ; ("y",Unit)]) = Unit in 
-  let t8 = (eval (Ifgreater(Num(100),Num(20),Var("x"),Var("y"))) [("x",Num(20)) ; ("y",Unit)]) = Num(20) in 
+  let t7 = (eval ([Ifgreater(Num(10),Num(20),Var("x"),Var("y"))]) [("x",Num(20)) ; ("y",Unit)]) = [Unit] in 
+  let t8 = (eval ([Ifgreater(Num(100),Num(20),Var("x"),Var("y"))]) [("x",Num(20)) ; ("y",Unit)]) = [Num(20)] in 
   (* let t9 = (eval (Ifgreater(Num(100),Var("y"),Var("x"),Var("y"))) [("x",Num(20)) ; ("y",Unit)]) = Num(20)*) (* Passed *)
 
-  let t10 = (eval (Fun(F(false),"f",Add(Var("f"),Num(10)))) []) = Closure([],(Fun(F(false),"f",Add(Var("f"),Num(10))))) in 
-  let t11 = (eval (Fun(F(false),"f",Add(Var("f"),Num(10)))) [("x",Num(10))]) = Closure([("x",Num(10))],(Fun(F(false),"f",Add(Var("f"),Num(10))))) in
+  let t10 = (eval ([Fun(F(false),"f",Add(Var("f"),Num(10)))]) []) = [Closure([],(Fun(F(false),"f",Add(Var("f"),Num(10)))))] in 
+  let t11 = (eval ([Fun(F(false),"f",Add(Var("f"),Num(10)))]) [("x",Num(10))]) = [Closure([("x",Num(10))],(Fun(F(false),"f",Add(Var("f"),Num(10)))))] in
 
-  let t12 = (eval (Let("x",Add(Num(10),Var("x")),Var("x"))) [("x",Num(10))]) = Num(20) in
-  let t13 = (eval (Let("x",Let("y",Num(10),Add(Var("y"),Var("z"))),Var("x"))) [("z",Num(30))]) = Num(40) in
+  let t12 = (eval ([Let("x",Add(Num(10),Var("x")),Var("x"))]) [("x",Num(10))]) = [Num(20)] in
+  let t13 = (eval ([Let("x",Let("y",Num(10),Add(Var("y"),Var("z"))),Var("x"))]) [("z",Num(30))]) = [Num(40)] in
 
-  let t14 = (eval (Car(Pair(Num(10),Fun(F(false),"f",Add(Var("f"),Num(10)))))) []) = Num(10) in
+  let t14 = (eval ([Car(Pair(Num(10),Fun(F(false),"f",Add(Var("f"),Num(10)))))]) []) = [Num(10)] in
   (*let t15 = (eval (Car(Num(10))) [])*) (* Passed *)
 
-  let t16 = (eval (Cdr(Pair(Num(10),Fun(F(false),"f",Add(Var("f"),Num(10)))))) []) = Closure([],Fun(F(false),"f",Add(Var("f"),Num(10)))) in
+  let t16 = (eval ([Cdr(Pair(Num(10),Fun(F(false),"f",Add(Var("f"),Num(10)))))]) []) = [Closure([],Fun(F(false),"f",Add(Var("f"),Num(10))))] in
   (*let t17 = (eval (Cdr(Num(10))) [])*) (* Passed *)
 
-  let t18 = (eval (Isunit(Add(Num(10),Num(20)))) []) = Num(0) in
-  let t19 = (eval (Isunit(Let("x",Unit,Var("x")))) []) = Num(1) in
+  let t18 = (eval ([Isunit(Add(Num(10),Num(20)))]) []) = [Num(0)] in
+  let t19 = (eval ([Isunit(Let("x",Unit,Var("x")))]) []) = [Num(1)] in
 
-  let t20 = (eval (Closure([],Fun(F(false),"f",Add(Var("f"),Num(10))))) []) = Closure([],Fun(F(false),"f",Add(Var("f"),Num(10)))) in
+  let t20 = (eval ([Closure([],Fun(F(false),"f",Add(Var("f"),Num(10))))]) []) = [Closure([],Fun(F(false),"f",Add(Var("f"),Num(10))))] in
 
 
-  let t21 = (eval (Call(Closure([],Fun(F(false),"f",Add(Var("f"),Num(10)))),Var("x"))) [("x",Num(100))]) = Num(110) in
-  let t22 = (eval (Call(Closure([],Fun(S("myfunc"),"x",Ifgreater(Isunit(Var("x")),Num(0),Var("x"),Call(Var("myfunc"),Cdr(Var("x")))))),Pair(Num(10),Pair(Num(20), Pair(Num(30),Unit))))) [("x",Num(100))]) = Unit in
+  let t21 = (eval ([Call(Closure([],Fun(F(false),"f",Add(Var("f"),Num(10)))),Var("x"))]) [("x",Num(100))]) = [Num(110)] in
+  let t22 = (eval ([Call(Closure([],Fun(S("myfunc"),"x",Ifgreater(Isunit(Var("x")),Num(0),Var("x"),Call(Var("myfunc"),Cdr(Var("x")))))),Pair(Num(10),Pair(Num(20), Pair(Num(30),Unit))))]) [("x",Num(100))]) = [Unit] in
 
   (*printf "Num Test ---> %b \n" t1;
   printf "Var Test ---> %b \n" t2 ;
@@ -292,9 +299,8 @@ let parser_test str =
     (* let func_test = (eval (parser str) []) = Closure([],Fun(S("fuc"),"x",Add(Num(10),Var("x")))) in *)
     (* let map_test = (eval (parser str) []) = Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))) in *)
     let mult_map_test_data = parser str in
-    let mult_map_test1 = (eval (hd mult_map_test_data) []) =  Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))) in
-    let mult_map_test2 = (eval (hd (tl mult_map_test_data)) []) =  Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))) in
-    if mult_map_test1 && mult_map_test2
+    let mult_map_test1 = (eval mult_map_test_data []) =  [Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))); Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit))));] in
+    if mult_map_test1
     then printf "Interpretation Successfull \n"
     else printf "Interpretation Unsuccessfull \n"
 
