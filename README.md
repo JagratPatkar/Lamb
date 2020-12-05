@@ -3,5 +3,5 @@
 </p>
 
 
-#
-λ Lamb is a _Dynamically Typed and interpreted Functional Programming Language_, implemented in Ocaml, and is a subset of the Lisp family of programming languages.
+# λ Lamb 
+_Dynamically Typed and interpreted Functional Programming Language_, implemented in Ocaml, and is a subset of the Lisp family of programming languages.
