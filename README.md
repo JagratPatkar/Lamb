@@ -20,6 +20,14 @@ Some of the basic features
    * *Higher Order Functions*
    * *Currying*
 
+
+## Getting Started
+
+
+```
+git https://github.com/JagratPatkar/Lamb.git 
+```
+
 ## Examples
 
 ### Church Encodings
