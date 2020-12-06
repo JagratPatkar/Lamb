@@ -296,7 +296,7 @@ let  print l =
 let rec printer l = 
   match l with 
   | [] -> printf ""
-  | e::l' -> if e = " "
+  | e::l' -> if not(e = " ")
              then (printf "%s\n" e; printer l')
              else printer l'
 
