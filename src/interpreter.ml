@@ -296,7 +296,9 @@ let  print l =
 let rec printer l = 
   match l with 
   | [] -> printf ""
-  | e::l' -> printf "%s\n" e; printer l'
+  | e::l' -> if e = " "
+             then (printf "%s\n" e; printer l')
+             else printer l'
 
 let () = 
   let input_file = (open_in (Sys.argv.(1))) in
