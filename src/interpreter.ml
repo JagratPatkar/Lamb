@@ -167,11 +167,40 @@ let eval_tests () =
   then printf "Interpreter Heath Status ===== OK \n"
   else printf "Interpreter Helth Status ===== NOT OK \n";;
 
+let rec createList l = 
+  match l with
+  | [] -> []
+  | Delim(s)::l' -> if s = " "
+                    then createList l'
+                    else [s] @ createList l'
+  | Text(s)::l' -> [s] @ createList l';;
+
+
 
 let rec parser str = 
-    (* let ns = Str.global_substitute (Str.regexp("\\([(-)]+\\)")) (fun x -> if x = "(" then " ( " else " ) ") str in   *)
-    let nns = Str.split (Str.regexp "[ \n\t]+")  str in
-    
+  let stringHelper x =
+    let str = (matched_string x) in
+    let rec explode s =
+       let rec expl i l = 
+        if i < 0 then l else
+        expl (i - 1) (s.[i] :: l) in 
+      expl (String.length s - 1) []
+    in
+     let rec implode l = 
+       match l with
+       | [] -> ""
+       | e::l' -> e ^ implode l'
+    in
+      
+      let lis = explode str in 
+      let mappedlist = List.map (fun x -> String.make 1 ' ' ^ String.make 1 x ^  String.make 1 ' ') lis in 
+      let im = implode mappedlist in 
+      im 
+      
+    in
+
+    let fil1 = Str.global_substitute (Str.regexp("[(-)]+")) stringHelper str in
+    let nns = Str.split (Str.regexp "[ \n\t]+")  fil1 in
     let rec looper s =
       let proccessList s =
         let rec processor l ml = 
@@ -288,10 +317,33 @@ let rec parser str =
             if en = []
             then [e]
             else  [e] @ (m en) in
-       (m nns)
+        (m nns)
       with e -> raise SyntaxError;;
 
-    
+let  print l = 
+   let rec printer exp = 
+    match exp with
+    | Num(x) -> string_of_int x
+    | Unit -> "U"
+    | Pair(x,y) -> "(pair " ^ printer x ^ " , " ^ printer y ^ " " ^ ")"
+    | Var x -> ""
+    | Add(a,b) -> ""
+    | Ifgreater(e1,e2,e3,e4) -> ""
+    | Fun(e1,e2,e3) -> ""
+    | Call(c,f) -> ""
+    | Let(e1,e2,e3) -> ""
+    | Car(e) -> ""
+    | Cdr(e) -> ""
+    | Isunit(e) -> ""
+    | Closure(e,fp) -> ""
+   in 
+   let rec m n = 
+     match n with 
+     | [] -> []
+     | e::n' -> [printer e] @ m n' in 
+   
+  (m l)
+
 
 let parser_test str = 
     (*let num_test = (eval (parser str) []) = Num(10) in*) (* Passed *)
@@ -306,15 +358,24 @@ let parser_test str =
     (* let let_test = (eval (parser str) []) = Num(40) in *)
     (* let func_test = (eval (parser str) []) = Closure([],Fun(S("fuc"),"x",Add(Num(10),Var("x")))) in *)
     (* let map_test = (eval (parser str) []) = Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))) in *)
-    let mult_map_test_data = parser str in
-    let mult_map_test1 = (eval mult_map_test_data []) =  [ Closure([],Fun(S("myfuncc"),"x",Add(Var("x"),Num(10)))) ; Num(20)] in 
-    if mult_map_test1
+    let test_data = parser str in
+    (* let mult_map_test1 = (eval test_data []) =  [ Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))) ; Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit))))] in  *)
+    let print_test1 = (eval test_data []) = [Num(10)] in 
+    if print_test1
     then printf "Interpretation Successfull \n"
     else printf "Interpretation Unsuccessfull \n"
+
+
+let rec printer l = 
+  match l with 
+  | [] -> printf ""
+  | e::l' -> printf "%s\n" e; printer_test l'
+
+
 
 let () = 
   let _ = eval_tests () in 
   let input_file = (open_in (Sys.argv.(1))) in
   let str = really_input_string input_file (in_channel_length input_file) in 
-  parser_test str;;
-  
+  (* parser_test str; *)
+  printer_test (print (eval (parser str) []))
