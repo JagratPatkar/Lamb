@@ -23,7 +23,7 @@ Some of the basic features
 
 ### Church Encodings
 
-'''racket
+```racket
 (define TRUE x (lambda y x))
 
 (define FALSE x (lambda y y))
@@ -40,4 +40,4 @@ Some of the basic features
             (lambda y (call 
                         (call x (call (call y TRUE) FALSE)) 
                         (call x (call (call y FALSE) TRUE)))))
-'''
+```
