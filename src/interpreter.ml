@@ -80,7 +80,7 @@ let eval expr env =
       | Isunit e -> if (pr e env) = Unit 
                   then Num(1)
                   else Num(0)
-      | Closure(e,ev) -> (printf "here clo";Closure(e,ev))
+      | Closure(e,ev) -> Closure(e,ev)
       | Call(clo,arg) -> try 
                           let Closure(e,funb) = (pr clo env) in 
                           let act = (pr arg env) in 
@@ -89,7 +89,7 @@ let eval expr env =
                           then (pr fb ((fp,act)::e))
                           else
                           let S form =  fn in  (pr fb ((form,Closure(e,funb))::((fp,act)::e)))
-                          with e ->  (printf "here call"; raise IlleagalValue)
+                          with e ->  raise IlleagalValue
       in 
       let rec iter l exl env=
         if l = []
