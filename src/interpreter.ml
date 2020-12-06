@@ -39,6 +39,13 @@ let eval expr env =
     | Fun(fn,fp,fb) -> (fn,fp,fb)
     | _ -> raise IlleagalValue in
   
+  let isNamedFunc expr = 
+    match expr with
+    | Closure(env,func) -> (match func with 
+                           | Fun(S(fn),fp,fb) -> [(fn,expr)]
+                           | _ -> [])
+    | _ -> []
+  in
 
   let rec pr expr env  = 
       match expr with 
@@ -81,15 +88,16 @@ let eval expr env =
                           if fn = F(false) 
                           then (pr fb ((fp,act)::e))
                           else
-                          let S form = fn in (pr fb ((form,Closure(e,funb))::((fp,act)::e)))
-                          with e -> raise IlleagalValue
+                          let S form =  fn in   (pr fb ((form,Closure(e,funb))::((fp,act)::e)))
+                          with e ->  raise IlleagalValue
       in 
       let rec iter l exl env=
         if l = []
         then exl
         else 
           let exp = pr (hd l) env in 
-            iter (tl l) ([exp] @ exl) []    
+            let nextenv = isNamedFunc exp in
+            iter (tl l) ( exl @ [exp] ) nextenv    
       in 
       (iter expr [] env);;
   
@@ -195,7 +203,7 @@ let rec parser str =
                         let (Some v2,e2) = looper e1 in
                         let (None, e3) = looper e2 in
                         (Some(Pair(v1,v2)),e3)
-                      with e-> (printf "in pair \n"; raise SyntaxError)
+                      with e-> raise SyntaxError
                  else if e = "list" 
                  then  proccessList s' 
                  else if e = "+"
@@ -204,25 +212,25 @@ let rec parser str =
                         let (Some v2,e2) = looper e1 in
                         let (None, e3) = looper e2 in
                         (Some(Add(v1,v2)),e3)
-                      with e-> (printf "in add \n"; raise SyntaxError)
+                      with e->  raise SyntaxError
                  else if e = "car"
                  then try 
                         let (Some v1,e1) = looper s' in
                         let (None, e2) = looper e1 in
                         (Some(Car(v1)),e2)
-                      with e-> (printf "in car \n"; raise SyntaxError)
+                      with e-> raise SyntaxError
                 else if e = "cdr"
                 then try 
                         let (Some v1,e1) = looper s' in
                         let (None, e2) = looper e1 in
                         (Some(Cdr(v1)),e2)
-                      with e-> (printf "in cdr \n"; raise SyntaxError)
+                      with e-> raise SyntaxError
                 else if e = "unit?"
                 then try 
                         let (Some v1,e1) = looper s' in
                         let (None, e2) = looper e1 in
                         (Some(Isunit(v1)),e2)
-                      with e-> (printf "in unit? \n";raise SyntaxError)
+                      with e-> raise SyntaxError
                 else if e = "cmp"
                 then try 
                           let (Some v1,e1) = looper s' in
@@ -231,7 +239,7 @@ let rec parser str =
                           let (Some v4,e4) = looper e3 in
                           let (None, e5) = looper e4 in
                           (Some(Ifgreater(v1,v2,v3,v4)),e5)
-                        with e-> (printf "in cmp \n";raise SyntaxError)
+                        with e-> raise SyntaxError
                 else if e = "let"
                 then try 
                         let (Some vl,e1) = looper s' in
@@ -240,7 +248,7 @@ let rec parser str =
                         let (None, e4) = looper e3 in
                         let Var v = vl in
                         (Some(Let(v,exp2,exp3)),e4)
-                      with e-> (printf "in let \n";raise SyntaxError)
+                      with e-> raise SyntaxError
                 else if e = "define"
                 then try 
                         let (Some vl,e1) = looper s' in
@@ -249,8 +257,8 @@ let rec parser str =
                         let (None, e4) = looper e3 in
                         let Var v = vl in
                         let Var v1 = vl2 in
-                        (printf "in define %s \n" v ; (Some(Fun(S(v),v1,exp3)),e4))
-                      with e-> (printf "in define\n";raise SyntaxError)
+                        (Some(Fun(S(v),v1,exp3)),e4)
+                      with e-> raise SyntaxError
                 else if e = "lambda"
                 then try 
                         let (Some vl,e1) = looper s' in
@@ -258,14 +266,14 @@ let rec parser str =
                         let (None, e3) = looper e2 in
                         let Var v = vl in
                         (Some(Fun(F(false),v,exp3)),e3)
-                      with e-> (printf "in lambda \n";raise SyntaxError)
+                      with e-> raise SyntaxError
                 else if e = "call"
                 then try 
                         let (Some vl,e1) = looper s' in
                         let (Some vl2,e2) = looper e1 in 
                         let (None, e3) = looper e2 in
                         (Some(Call(vl,vl2)),e3)
-                      with e-> (printf "in call \n";raise SyntaxError)
+                      with e->  raise SyntaxError
                 else if Str.string_match(Str.regexp "[A-Za-z_]+$") e 0
                 then (Some(Var(e)),s')
                 else if e = ")"
@@ -279,8 +287,8 @@ let rec parser str =
             in 
             if en = []
             then [e]
-            else (m en) @ [e] in
-        (m nns)
+            else  [e] @ (m en) in
+       (m nns)
       with e -> raise SyntaxError;;
 
     
@@ -299,7 +307,7 @@ let parser_test str =
     (* let func_test = (eval (parser str) []) = Closure([],Fun(S("fuc"),"x",Add(Num(10),Var("x")))) in *)
     (* let map_test = (eval (parser str) []) = Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))) in *)
     let mult_map_test_data = parser str in
-    let mult_map_test1 = (eval mult_map_test_data []) =  [Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit)))); Pair(Num(20),Pair(Num(30),Pair(Num(40),Pair(Num(50),Unit))));] in
+    let mult_map_test1 = (eval mult_map_test_data []) =  [ Closure([],Fun(S("myfuncc"),"x",Add(Var("x"),Num(10)))) ; Num(20)] in 
     if mult_map_test1
     then printf "Interpretation Successfull \n"
     else printf "Interpretation Unsuccessfull \n"
