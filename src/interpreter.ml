@@ -369,7 +369,7 @@ let parser_test str =
 let rec printer l = 
   match l with 
   | [] -> printf ""
-  | e::l' -> printf "%s\n" e; printer_test l'
+  | e::l' -> printf "%s\n" e; printer l'
 
 
 
@@ -378,4 +378,4 @@ let () =
   let input_file = (open_in (Sys.argv.(1))) in
   let str = really_input_string input_file (in_channel_length input_file) in 
   (* parser_test str; *)
-  printer_test (print (eval (parser str) []))
+  printer (print (eval (parser str) []))
