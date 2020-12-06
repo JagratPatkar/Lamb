@@ -8,10 +8,13 @@ _Dynamically Typed and interpreted __Functional Programming Language___, impleme
 
 ## Features
 Some of the basic features 
-* Int
-* Pair
-* List
-* Functions 
-* Closures
-* First Class Functions
-* Higher Order Functions
+> Data Types
+  > Int
+  > Pair
+  > List
+> Functional Idioms
+  > Lambdas
+  > Functions 
+  > Closures
+  > First Class Functions
+  > Higher Order Functions
