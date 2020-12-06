@@ -18,6 +18,7 @@ Some of the basic features
    * *Closures*
    * *First Class Functions*
    * *Higher Order Functions*
+   * *Currying*
 
 ## Examples
 
@@ -53,3 +54,14 @@ Some of the basic features
                         (call x (call (call y TRUE) FALSE)) 
                         (call x (call (call y FALSE) TRUE)))))
 ```
+
+
+### Map 
+
+```racket
+(define map f (define helper xs 
+                                (cmp (unit? xs) 0
+                                     xs
+                                     (pair (call f (car xs)) 
+                                           (call helper (cdr xs)))))) 
+ ```
