@@ -32,21 +32,21 @@ git https://github.com/JagratPatkar/Lamb.git
 touch my1.lmb
 ```
 
-#### Starting with the Numbers in Lamb add the following code to the file
+#### Add the following code to the file
 
 ```
-10
+(+ 10 20)
 ```
 
-#### Interpret the file using the Lamb interpreter
+#### Using Lamb
 ```
 ./Lamb my1.lmb
 ```
 
-#### You should see the output in the terminal
+#### Output
 
 ```
-$10
+$30
 ```
 
 ## Examples
