@@ -18,3 +18,8 @@ Some of the basic features
    * *Closures*
    * *First Class Functions*
    * *Higher Order Functions*
+
+## Examples
+
+### Church Encodings
+
