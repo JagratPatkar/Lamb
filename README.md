@@ -23,9 +23,30 @@ Some of the basic features
 
 ## Getting Started
 
-
+#### Clone the repo in a local directory
 ```
 git https://github.com/JagratPatkar/Lamb.git 
+```
+#### Create a file with .lmb extension
+```
+touch my1.lmb
+```
+
+#### Starting with the Numbers in Lamb add the following code to the file
+
+```
+10
+```
+
+#### Interpret the file using the Lamb interpreter
+```
+./Lamb my1.lmb
+```
+
+#### You should see the output in the terminal
+
+```
+$10
 ```
 
 ## Examples
