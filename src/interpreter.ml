@@ -271,32 +271,36 @@ let  print l =
 
    let rec printer exp = 
     match exp with
-    | Num(x) -> string_of_int x
-    | Unit -> "U"
-    | Pair(x,y) -> "(pair " ^ printer x ^ " " ^ printer y ^  ")"
-    | Var x -> ""
-    | Add(a,b) -> ""
-    | Ifgreater(e1,e2,e3,e4) -> ""
-    | Fun(e1,e2,e3) -> ""
-    | Call(c,f) -> ""
-    | Let(e1,e2,e3) -> ""
-    | Car(e) -> ""
-    | Cdr(e) -> ""
-    | Isunit(e) -> ""
-    | Closure(e,fp) -> ""
+    | Num(x) -> Some (string_of_int x)
+    | Unit -> Some ("U")
+    | Pair(x,y) -> let p1 = printer x in 
+                   let p2 = printer y in
+                  Some("(pair " ^ Option.get p1 ^ " " ^ Option.get p2 ^  ")")
+    | Var x -> None
+    | Add(a,b) -> None
+    | Ifgreater(e1,e2,e3,e4) -> None
+    | Fun(e1,e2,e3) -> None
+    | Call(c,f) -> None
+    | Let(e1,e2,e3) -> None
+    | Car(e) -> None
+    | Cdr(e) -> None
+    | Isunit(e) -> None
+    | Closure(e,fp) -> None
    in 
    let rec m n = 
      match n with 
      | [] -> []
-     | e::n' -> [printer e] @ m n' in 
-   
+     | e::n' -> let k = printer e in
+                match k with 
+                | Some x -> [x] @ m n'
+                | None -> m n' in
   (m l)
 
 
 let rec printer l = 
   match l with 
-  | [] -> printf ""
-  | e::l' -> if not(e = " ")
+  | [] -> ()
+  | e::l' -> if not(e = " ") || not(e = "")
              then (printf "%s\n" e; printer l')
              else printer l'
 
