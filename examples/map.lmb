@@ -1,0 +1,5 @@
+(define map f (define helper xs 
+                                (cmp (unit? xs) 0
+                                     xs
+                                     (pair (call f (car xs)) 
+                                           (call helper (cdr xs)))))) 
