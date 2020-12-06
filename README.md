@@ -24,22 +24,29 @@ Some of the basic features
 ### Church Encodings
 
 ```racket
+
 ;True 
 (define TRUE x (lambda y x))
+
 
 ;False
 (define FALSE x (lambda y y))
 
+
 ;Negation
 (define NOT b (call (call b FALSE) TRUE))
+
 
 ;And or Conjunction
 (define CONJUNCTION x 
                     (lambda y (call (call x y) FALSE)))
 
+
 ;Or / Disjunction
 (define DISJUNCTION x 
                     (lambda y (call (call x TRUE) y)))
+                    
+                    
 ;Boolean Equality
 (define BEQ x 
             (lambda y (call 
