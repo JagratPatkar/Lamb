@@ -42,7 +42,7 @@ let eval expr env =
   let isNamedFunc expr = 
     match expr with
     | Closure(env,func) -> (match func with 
-                           | Fun(S(fn),fp,fb) -> [(fn,expr)]
+                           | Fun(S(fn),fp,fb) -> env @ [(fn,expr)]
                            | _ -> [])
     | _ -> []
   in
@@ -80,7 +80,7 @@ let eval expr env =
       | Isunit e -> if (pr e env) = Unit 
                   then Num(1)
                   else Num(0)
-      | Closure(e,ev) -> Closure(e,ev)
+      | Closure(e,ev) -> (printf "here clo";Closure(e,ev))
       | Call(clo,arg) -> try 
                           let Closure(e,funb) = (pr clo env) in 
                           let act = (pr arg env) in 
@@ -88,8 +88,8 @@ let eval expr env =
                           if fn = F(false) 
                           then (pr fb ((fp,act)::e))
                           else
-                          let S form =  fn in   (pr fb ((form,Closure(e,funb))::((fp,act)::e)))
-                          with e ->  raise IlleagalValue
+                          let S form =  fn in  (pr fb ((form,Closure(e,funb))::((fp,act)::e)))
+                          with e ->  (printf "here call"; raise IlleagalValue)
       in 
       let rec iter l exl env=
         if l = []
