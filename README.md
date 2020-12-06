@@ -9,12 +9,12 @@ _Dynamically Typed and interpreted __Functional Programming Language___, impleme
 ## Features
 Some of the basic features 
 * __Data Types__
-  *Int*
-  *Pair*
-  *List*
-__Functional Idioms__
-   *Lambdas*
-   *Functions* 
-   *Closures*
-   *First Class Functions*
-   *Higher Order Functions*
+  * *Int*
+  * *Pair*
+  * *List*
+* __Functional Idioms__
+   * *Lambdas*
+   * *Functions* 
+   * *Closures*
+   * *First Class Functions*
+   * *Higher Order Functions*
