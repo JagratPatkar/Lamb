@@ -19,6 +19,8 @@ Some of the basic features
    * *First Class Functions*
    * *Higher Order Functions*
    * *Currying*
+* __Arithmetic Operations__
+  * *Add*
 
 
 ## Getting Started
