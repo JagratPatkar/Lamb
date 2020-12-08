@@ -23,34 +23,6 @@ Some of the basic features
   * *Add*
 
 
-## Getting Started
-
-#### Clone the repo in a local directory
-```
-git https://github.com/JagratPatkar/Lamb.git 
-```
-#### Create a file with .lmb extension
-```
-touch my1.lmb
-```
-
-#### Add the following code to the file
-
-```
-(+ 10 20)
-```
-
-#### Using Lamb
-```
-./Lamb my1.lmb
-```
-
-#### Output
-
-```
-$30
-```
-
 ## Examples
 
 ### Church Encodings
