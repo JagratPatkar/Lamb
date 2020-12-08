@@ -1,5 +1,5 @@
 <p align="center">
-  <img   src="https://github.com/JagratPatkar/Lamb/blob/main/images/Lamb.png"/>
+  <img  height="200" width="600" src="https://github.com/JagratPatkar/Lamb/blob/main/images/Lamb%20(1).svg"/>
 </p>
 
 
