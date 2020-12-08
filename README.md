@@ -15,6 +15,7 @@ Some of the basic features
 * __Functional Idioms__
    * *Lambdas*
    * *Functions* 
+   * *Recursion*
    * *Closures*
    * *First Class Functions*
    * *Higher Order Functions*
