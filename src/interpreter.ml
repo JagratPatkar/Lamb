@@ -10,6 +10,9 @@ type expr =
 | Num of int
 | Var of string
 | Add of expr * expr
+| Sub of expr * expr 
+| Mult of expr * expr
+| Div of expr * expr
 | Ifgreater of expr * expr * expr * expr 
 | Fun of name * string * expr 
 | Call of expr * expr
@@ -56,6 +59,11 @@ let eval expr env =
                             let Num e2 = pr exp2 env in 
                             Num(e1 + e2)
                           with e -> raise IlleagalValue)
+      | Sub(exp1,exp2) -> (try 
+                            let Num e1 = pr exp1 env in
+                            let Num e2 = pr exp2 env in 
+                            Num(e1 - e2)
+                            with e -> raise IlleagalValue)
       |Ifgreater(exp1,exp2,exp3,exp4) ->  (try 
                                               let Num v1 = pr exp1 env in
                                               let Num v2 = pr exp2 env in 
