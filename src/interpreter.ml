@@ -189,6 +189,13 @@ let rec parser str =
                         let (None, e3) = looper e2 in
                         (Some(Add(v1,v2)),e3)
                       with e->  raise SyntaxError
+                 else if e = "-"
+                 then try 
+                        let (Some v1,e1) = looper s' in
+                        let (Some v2,e2) = looper e1 in
+                        let (None, e3) = looper e2 in
+                        (Some(Sub(v1,v2)),e3)
+                      with e->  raise SyntaxError
                  else if e = "car"
                  then try 
                         let (Some v1,e1) = looper s' in
