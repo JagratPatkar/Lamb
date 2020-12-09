@@ -22,8 +22,8 @@ Some of the basic features
    * *Currying*
    * *Let Expressions*
 * __Arithmetic Operations__
-  * *Add*
-  * *Sub*
+  * *Addition*
+  * *Substraction*
 
 
 ## Examples
