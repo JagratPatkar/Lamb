@@ -23,6 +23,7 @@ Some of the basic features
    * *Let Expressions*
 * __Arithmetic Operations__
   * *Add*
+  * *Sub*
 
 
 ## Examples
